@@ -175,7 +175,7 @@ $manager->register_widget_type(new class extends \ElementorThemeBase {
                 <?php endforeach; endif; ?>
                 <div>
                     <form method="get" class="input-group form-control p-0 cemigsaude-header-search-input">
-                        <input type="search" name="q" class="form-control border-0 bg-transparent" placeholder="<?php echo $data->search_placeholder; ?>">
+                        <input type="search" name="q" value="<?php echo request_input('q'); ?>" class="form-control border-0 bg-transparent" placeholder="<?php echo $data->search_placeholder; ?>">
                         <div class="input-group-btn">
                             <button type="submit" class="btn border-0 bg-transparent">
                                 <i class="fas fa-search" style="color:<?php echo $data->search_color; ?>;"></i>

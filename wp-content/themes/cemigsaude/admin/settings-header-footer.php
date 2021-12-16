@@ -21,8 +21,8 @@ add_action('admin_menu', function() {
 
         ?>
         <form method="post" action="">
-            <div class="form-group">
-                <label>Cabeçalho</label>
+            <div class="mb-3">
+                <label class="form-label">Cabeçalho</label>
                 <div class="input-group">
                     <select name="theme_header" class="form-control">
                         <option value="">Selecione</option>
@@ -41,8 +41,8 @@ add_action('admin_menu', function() {
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Rodapé</label>
+            <div class="mb-3">
+                <label class="form-label">Rodapé</label>
                 <div class="input-group">
                     <select name="theme_footer" class="form-control">
                         <option value="">Selecione</option>

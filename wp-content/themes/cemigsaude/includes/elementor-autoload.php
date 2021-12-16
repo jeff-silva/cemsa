@@ -59,24 +59,35 @@ add_action('elementor/widgets/widgets_registered', function($manager) {
             $data = $this->get_settings_data();
             $data->is_edit_mode = \Elementor\Plugin::$instance->editor->is_edit_mode();
             // $data->is_preview_mode = \Elementor\Plugin::$instance->editor->is_preview_mode();
-
-            ob_start();
-            echo "\n<!-- {$element_name} start -->\n";
-            // echo "<style>\n". css_process($this->render_style($data)) ."</style>\n";
-            echo "<div class=\"{$element_name} {$element_id}\" id=\"{$element_id}\">\n";
-            $this->render_html($data);
-            echo "</div>";
-            echo "\n<!-- {$element_name} end -->\n\n";
-            $content = ob_get_clean();
-
-            $content = str_replace(':element_id', "#{$element_id}", $content);
-            $content = str_replace(':element_class', ".{$element_id}", $content);
             
-            // $content = preg_replace_callback('/(\<style*+\>)(.*?)(\<\/style\>)/s', function($all) {
-            //     return $all[1] . css_process($all[2]) . $all[3];
-            // }, $content);
-            
-            echo $content;
+            $data_cache_key = [$element_name, $_GET, $_POST];
+            $i = 0;
+            foreach($data as $key => $value) {
+                $i++;
+                if ($i>=10) break;
+                if ($key[0]=='_') continue;
+                $data_cache_key[] = $value;
+            }
+
+            echo data_cache($data_cache_key, 60*60, function() use($element_name, $element_id, $data) {
+                ob_start();
+                echo "\n<!-- {$element_name} start -->\n";
+                // echo "<style>\n". css_process($this->render_style($data)) ."</style>\n";
+                echo "<div class=\"{$element_name} {$element_id}\" id=\"{$element_id}\">\n";
+                $this->render_html($data);
+                echo "</div>";
+                echo "\n<!-- {$element_name} end -->\n\n";
+                $content = ob_get_clean();
+    
+                $content = str_replace(':element_id', "#{$element_id}", $content);
+                $content = str_replace(':element_class', ".{$element_id}", $content);
+                
+                // $content = preg_replace_callback('/(\<style*+\>)(.*?)(\<\/style\>)/s', function($all) {
+                //     return $all[1] . css_process($all[2]) . $all[3];
+                // }, $content);
+
+                return $content;
+            });
         }
 
         public function register_controls_data() {

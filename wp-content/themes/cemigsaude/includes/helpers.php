@@ -38,7 +38,9 @@ function css_process($style, $params=[]) {
 
 
 function elementor_colors() {
-    $global = (new \Elementor\Core\Kits\Manager)->get_current_settings();
+    $global = data_cache('elementor_get_current_settings', 60*60, function() {
+        return (new \Elementor\Core\Kits\Manager)->get_current_settings();
+    });
 
     $colors = [];
     foreach($global['system_colors'] as $c) {
@@ -57,4 +59,25 @@ function elementor_colors() {
     }
 
     return $colors;
+}
+
+function data_cache($key, $seconds, $callback, $ignore_cache=false) {
+    if ($ignore_cache) return call_user_func($callback);
+    if (is_array($key)) { $key = json_encode($key); }
+    $key = md5($key);
+    // delete_transient($key);
+    $value = get_transient($key);
+
+    if (false === $value) {
+        $value = call_user_func($callback);
+        set_transient($key, $value, $seconds);
+    }
+
+    return $value;
+}
+
+function request_input($name, $default=null) {
+    if (isset($_GET[ $name ])) return $_GET[ $name ];
+    if (isset($_POST[ $name ])) return $_POST[ $name ];
+    return $default;
 }
