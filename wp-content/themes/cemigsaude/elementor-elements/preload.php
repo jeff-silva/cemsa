@@ -39,7 +39,7 @@ $manager->register_widget_type(new class extends \ElementorThemeBase {
     public function render_html($data) {
         if ($data->is_edit_mode AND !$data->preview) return;
 ?>
-<div class="preload-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; z-index:9; display:flex; align-items:center; justify-content:center; animation-duration:200ms;">
+<div class="preload-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; z-index:999; display:flex; align-items:center; justify-content:center; animation-duration:200ms;">
     <div>
         <?php if ($data->image AND $data->image->url): ?>
             <img src="<?php echo $data->image->url; ?>" alt="">
@@ -51,9 +51,10 @@ $manager->register_widget_type(new class extends \ElementorThemeBase {
 
 <script>
 (() => {
-    let target = document.querySelector(':element_id .preload-overlay');
     let animateIn = 'animate__fadeIn';
     let animateOut = 'animate__fadeOut';
+    let zIndex = '999';
+    let target = document.querySelector(':element_id .preload-overlay');
     
     target.addEventListener('animationend', ev => {
         if (!target.classList.contains(animateOut)) return;
@@ -67,7 +68,7 @@ $manager->register_widget_type(new class extends \ElementorThemeBase {
     });
 
     window.addEventListener('beforeunload', function(event) {
-        target.style.zIndex = '9';
+        target.style.zIndex = zIndex;
         target.classList.remove(animateOut);
         target.classList.add(animateIn);
     });

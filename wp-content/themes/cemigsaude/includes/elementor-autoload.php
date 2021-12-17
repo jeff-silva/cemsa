@@ -59,17 +59,9 @@ add_action('elementor/widgets/widgets_registered', function($manager) {
             $data = $this->get_settings_data();
             $data->is_edit_mode = \Elementor\Plugin::$instance->editor->is_edit_mode();
             // $data->is_preview_mode = \Elementor\Plugin::$instance->editor->is_preview_mode();
-            
-            $data_cache_key = [$element_name, $_GET, $_POST];
-            $i = 0;
-            foreach($data as $key => $value) {
-                $i++;
-                if ($i>=10) break;
-                if ($key[0]=='_') continue;
-                $data_cache_key[] = $value;
-            }
+            $data->section_class = ltrim($this->get_unique_selector(), '.');
 
-            echo data_cache($data_cache_key, 60*60, function() use($element_name, $element_id, $data) {
+            $_callback = function() use($element_name, $element_id, $data) {
                 ob_start();
                 echo "\n<!-- {$element_name} start -->\n";
                 // echo "<style>\n". css_process($this->render_style($data)) ."</style>\n";
@@ -81,18 +73,36 @@ add_action('elementor/widgets/widgets_registered', function($manager) {
     
                 $content = str_replace(':element_id', "#{$element_id}", $content);
                 $content = str_replace(':element_class', ".{$element_id}", $content);
+                $content = str_replace(':section_class', ".{$data->section_class}", $content);
                 
                 // $content = preg_replace_callback('/(\<style*+\>)(.*?)(\<\/style\>)/s', function($all) {
                 //     return $all[1] . css_process($all[2]) . $all[3];
                 // }, $content);
 
                 return $content;
-            });
+            };
+
+            if ($theme_cache = get_option('theme_cache')) {
+                $data_cache_key = [$element_name, $_GET, $_POST];
+                $i = 0;
+                foreach($data as $key => $value) {
+                    $i++;
+                    if ($i>=10) break;
+                    if ($key[0]=='_') continue;
+                    $data_cache_key[] = $value;
+                }
+    
+                echo data_cache($data_cache_key, $theme_cache, $_callback); return;
+            }
+            
+            echo call_user_func($_callback);
         }
+
 
         public function register_controls_data() {
             return [];
         }
+
 
         public function get_settings_data() {
             $global = (new \Elementor\Core\Kits\Manager)->get_current_settings();
@@ -129,7 +139,6 @@ add_action('elementor/widgets/widgets_registered', function($manager) {
             }
 
             $data = _elementor_recursive_global_value($data, $global, $level);
-            $data['_element_id'] = $data['_element_id']? $data['_element_id']: uniqid($this->get_name() .'-');
             return json_decode(json_encode($data));
         }
 

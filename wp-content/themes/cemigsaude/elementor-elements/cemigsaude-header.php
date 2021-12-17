@@ -132,6 +132,8 @@ $manager->register_widget_type(new class extends \ElementorThemeBase {
     public function render_html($data) {
 ?>
 <style>
+.cemigsaude-header-fixed {position:fixed; top:0; left:0; width:100%; z-index:9;}
+
 /* Search */
 :element_class .cemigsaude-header-search-input {border-radius:10px; border-color:<?php echo $data->search_color; ?>;}
 :element_class .cemigsaude-header-search-input input {color:<?php echo $data->search_color; ?>;}
@@ -175,7 +177,7 @@ $manager->register_widget_type(new class extends \ElementorThemeBase {
                 <?php endforeach; endif; ?>
                 <div>
                     <form method="get" class="input-group form-control p-0 cemigsaude-header-search-input">
-                        <input type="search" name="q" value="<?php echo request_input('q'); ?>" class="form-control border-0 bg-transparent" placeholder="<?php echo $data->search_placeholder; ?>">
+                        <input type="search" name="s" value="<?php echo request_input('s'); ?>" class="form-control border-0 bg-transparent" placeholder="<?php echo $data->search_placeholder; ?>">
                         <div class="input-group-btn">
                             <button type="submit" class="btn border-0 bg-transparent">
                                 <i class="fas fa-search" style="color:<?php echo $data->search_color; ?>;"></i>
@@ -194,6 +196,35 @@ $manager->register_widget_type(new class extends \ElementorThemeBase {
         </div>
     </div>
 </section>
+
+<script>
+(ev => {
+    let parent = document.querySelector(':section_class').closest('.elementor-section');
+    parent.style.position = "fixed";
+    parent.style.top = '0';
+    parent.style.left = '0';
+    parent.style.width = '100%';
+    parent.style.zIndex = '99';
+
+    let spacer = Object.assign(document.createElement('div'), {
+        style: {background:"red"},
+    });
+    parent.parentNode.insertBefore(spacer, parent);
+    
+    ['load', 'resize'].forEach(evt => {
+        window.addEventListener(evt, ev => {
+            spacer.style.height = parent.offsetHeight+'px';
+            console.log(this, spacer, parent.offsetHeight);
+        });
+    });
+})();
+
+// window.addEventListener('scroll', ev => {
+//     let target = document.querySelector(':section_class').closest('.elementor-section');
+//     if (window.scrollY>=200) { return target.classList.add('cemigsaude-header-fixed'); }
+//     target.classList.remove('cemigsaude-header-fixed');
+// });
+</script>
 <?php
     }
 
