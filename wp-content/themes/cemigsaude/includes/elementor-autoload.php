@@ -6,11 +6,24 @@ add_action('elementor/widgets/widgets_registered', function($manager) {
         public function get_title() { return 'Elementor Theme Base'; }
         public function get_icon() { return 'eicon-editor-code'; }
         public function get_categories() { return [ 'general' ]; }
-        public function get_script_depends() { return []; }
-        public function get_style_depends() { return []; }
+        public function get_script_depends() { return $render_scripts; }
+        public function get_style_depends() { return $render_styles; }
+
+        public $render_scripts = [];
+        public $render_styles = [];
 
         public function __construct($data=[], $args=null) {
             parent::__construct($data, $args);
+
+            foreach($this->render_scripts() as $name => $file) {
+                $this->render_scripts[] = $name;
+                wp_register_script($name, $file);
+            }
+
+            foreach($this->render_styles() as $name => $file) {
+                $this->render_styles[] = $name;
+                wp_register_style($name, $file);
+            }
         }
 
         protected function _register_controls() {
@@ -142,6 +155,14 @@ add_action('elementor/widgets/widgets_registered', function($manager) {
             return json_decode(json_encode($data));
         }
 
+        public function render_scripts() {
+            return [];
+        }
+
+        public function render_styles() {
+            return [];
+        }
+
         public function render_html($data) {
             // 
         }
@@ -177,7 +198,7 @@ add_action('elementor/widgets/widgets_registered', function($manager) {
             ]);
         }
 
-        public function render_link($link) {
+        public function link_attrs($link) {
             return implode(' ', array_filter([
                 "href=\"{$link->url}\"",
                 ($link->is_external? 'target="_blank"': null),
@@ -200,8 +221,10 @@ add_action('wp_head', function() {
 
     foreach(elementor_colors() as $name => $info) {
         $style_lines[] = ".bg-{$name} {background-color: {$info->color};}";
+        $style_lines[] = ".border-{$name} {border-color:{$info->color}!important;}";
         $style_lines[] = ".text-{$name} {color: {$info->color};}";
-        $style_lines[] = ".btn-{$name} {background: {$info->color};}";
+        $style_lines[] = ".btn-{$name} {background:{$info->color}; border-color:{$info->color}!important;}";
+        $style_lines[] = ".btn-{$name}:hover {background:{$info->color}; border-color:{$info->color}!important;}";
         $style_lines[] = ".btn-outline-{$name} {border-color:{$info->color}!important; color:{$info->color};}";
         $style_lines[] = ".btn-outline-{$name}:hover {background: {$info->color};}";
         $style_lines[] = ".placeholder-{$name}:placeholder {color: {$info->color};}";

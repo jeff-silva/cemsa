@@ -58,7 +58,7 @@ $manager->register_widget_type(new class extends \ElementorThemeBase {
     
     target.addEventListener('animationend', ev => {
         if (!target.classList.contains(animateOut)) return;
-        target.style.zIndex = '0';
+        target.style.zIndex = '-1';
     });
 
     document.addEventListener("DOMContentLoaded", ev => {
